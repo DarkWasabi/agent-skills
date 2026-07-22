@@ -60,6 +60,10 @@ function sendEmail(to, subject, body) {
 
 ✅ **Refactor** — extract the shared payload-build + success-check, rename for clarity, keep the single attempt and the exact `=== 200`. If the missing retry looks like a bug, *say so in the report* — don't add it.
 
+## Reference
+
+`references/implementation-playbook.md` has deeper material for this skill: code-smell/SOLID before-after samples in multiple languages, a refactoring-ROI formula, a technical-debt priority decision tree, quality-metric thresholds (complexity, method/class length, coverage), and a full code-quality checklist. Load it when you need a concrete pattern example or a prioritization call — not needed for small mechanical slices.
+
 ## Quick reference — smell → fix
 
 | Smell | Behavior-preserving fix |
