@@ -1,112 +1,275 @@
 ---
 name: spec-review
-description: "Use when a design spec exists after brainstorming (or equivalent) and needs critical multi-persona review before writing-plans, implementation, or partner approval — including when the partner says skip review, the doc already lists addressed blockers, or a quick CTO skim feels enough."
+description: Review a completed design spec against the current codebase before implementation planning. Use independent reviewers to find inconsistencies, hidden risks, and unnecessary complexity, then obtain owner decisions and apply only approved changes to the spec.
 ---
 
-# Spec Review (CTO Gate)
+# Spec Review
 
-You are the **CTO orchestrator**. Three independent critical reviewers, then one CTO synthesis. Solo hats and rubber stamps are not a review.
+Review a completed design spec after brainstorming and before `writing-plans`.
 
-**Violating the letter of the rules is violating the spirit of the rules.**
+Goal: make spec implementation-ready without redesigning it unnecessarily.
 
-**REQUIRED BACKGROUND:** Spec comes from superpowers:brainstorming. After a clean CTO verdict (or partner waiver of named CONDITIONAL items), next skill is superpowers:writing-plans.
+## Rules
 
-## Iron Law
+- Review only. Do not implement feature or write implementation plan.
+- Treat spec claims as hypotheses, not evidence.
+- Verify important claims against current code, config, tests, schemas, and established repository patterns.
+- Prefer current source code over generated docs, indexes, summaries, or stale architecture descriptions.
+- Do not manufacture findings. A clean review is valid.
+- Ignore wording or style preferences unless ambiguity could change implementation.
+- Prefer smallest correction that resolves finding.
+- Do not introduce speculative flexibility, abstractions, extension points, or future-proofing.
+- Reviewers MUST remain read-only.
+- Only orchestrator may edit spec.
+- Spec changes require explicit owner approval.
+- Preserve existing spec purpose, structure, scope, approved decisions, and file location unless owner explicitly changes them.
+- Keep spec as design document. Do not turn it into implementation plan.
 
+## Workflow
+
+### 1. Establish Review Context
+
+Read complete spec.
+
+Inspect only codebase areas needed to validate design, including where relevant:
+
+- existing implementations and patterns
+- APIs and internal contracts
+- types and schemas
+- state and data boundaries
+- integration points
+- lifecycle behavior
+- relevant tests
+- relevant configuration
+
+Build concise context for reviewers.
+
+Do not perform full-repository exploration unless evidence shows it is needed.
+
+### 2. Run Independent Reviewers
+
+Use independent subagents or workers when runtime supports them.
+
+Run up to 3 reviewers in parallel.
+
+Each reviewer:
+
+- receives complete spec
+- receives relevant repository context
+- may inspect additional relevant source
+- works independently
+- MUST NOT see other reviewers' findings
+- MUST NOT edit spec or code
+
+Use distinct review angles.
+
+#### Reviewer A: Codebase Reality
+
+Check whether design agrees with actual codebase.
+
+Focus on:
+
+- incorrect assumptions about current behavior
+- incompatible APIs, types, schemas, state, or lifecycle
+- contradictions with existing architecture
+- spec sections that contradict each other
+- existing mechanisms the spec unnecessarily duplicates
+- integration effects omitted from spec
+- affected modules or contracts the design overlooks
+
+#### Reviewer B: Hidden Risks
+
+Find implementation-affecting gaps.
+
+Focus on:
+
+- missing states or transitions
+- missing error and recovery behavior
+- edge cases
+- ordering assumptions
+- lifecycle assumptions
+- async or concurrency behavior where relevant
+- backward compatibility
+- migration effects
+- cleanup or ownership behavior
+- regression risks
+- requirements that cannot be tested deterministically
+
+Only report issues material to design or later implementation.
+
+#### Reviewer C: Simplicity
+
+Challenge unnecessary complexity.
+
+Focus on:
+
+- YAGNI
+- premature abstractions
+- unnecessary layers or indirection
+- duplicated concepts
+- speculative configurability
+- generalized solutions for one concrete requirement
+- new mechanisms where existing repository patterns suffice
+- simpler designs that preserve required behavior
+
+Do not propose broad architectural rewrites unless current design has a material problem.
+
+### 3. Reviewer Output
+
+Every finding MUST use this format:
+
+```text
+Finding: <short title>
+Spec: <section or claim>
+Evidence: <file, symbol, test, config, or other concrete evidence>
+Issue: <specific problem>
+Impact: <what could fail or become ambiguous during planning or implementation>
+Direction: <smallest reasonable correction>
+Confidence: high | medium | low
 ```
-NO WRITING-PLANS OR IMPLEMENTATION UNTIL CTO VERDICT IS RECORDED
+
+Reviewer requirements:
+
+- verify load-bearing assumptions rather than trusting spec
+- distinguish verified facts from inference
+- provide concrete evidence for codebase claims
+- report only actionable findings
+- do not create a finding quota
+- return no finding when evidence does not support one
+
+If no material issues exist:
+
+```text
+CLEAN
 ```
 
-Partner "skip" does **not** cancel the gate. They may waive named CONDITIONAL items **after** seeing findings — not before.
+If independent subagents are unavailable, report that independent review could not be performed.
 
-**No exceptions:**
-- Don't solo-review as "CTO" / one agent with three hats
-- Don't APPROVE because the doc's own B1–Bn table looks complete
-- Don't invent CTO conclusions while writing reviewer findings
-- Don't proceed to writing-plans on an unrecorded gate
+Do not simulate multiple independent reviewers inside one shared reasoning context while claiming independence.
 
-## Process
+### 4. Consolidate Findings
 
-1. **Announce:** "Using spec-review to run BA / Architect / QA under CTO synthesis."
-2. **Load** the named `*-design.md` plus related/superseded paths for reviewers.
-3. **Spawn three parallel subagents** (one turn) with templates:
-   - [reviewers/business-analyst.md](reviewers/business-analyst.md)
-   - [reviewers/system-architect.md](reviewers/system-architect.md)
-   - [reviewers/senior-qa.md](reviewers/senior-qa.md)
-4. **CTO synthesis (you)** only after all three return — required shape below.
-5. **Present verdict to partner and stop.** Wait before writing-plans or spec edits.
+After reviewers finish, orchestrator independently evaluates their reports.
 
-**Hard requirements:** fresh subagents; absolute paths; graphify-first when `graphify-out/graph.json` exists (put that rule in every reviewer prompt); reviewers read-only.
+For each finding:
 
-```dot
-digraph spec_review {
-    "Spawn BA+Architect+QA parallel" [shape=box];
-    "CTO synthesis" [shape=box];
-    "Verdict?" [shape=diamond];
-    "Revise spec" [shape=box];
-    "Partner ack" [shape=box];
-    "writing-plans" [shape=doublecircle];
-    "Spawn BA+Architect+QA parallel" -> "CTO synthesis";
-    "CTO synthesis" -> "Verdict?";
-    "Verdict?" -> "Revise spec" [label="REJECT"];
-    "Verdict?" -> "Partner ack" [label="APPROVE / CONDITIONAL"];
-    "Partner ack" -> "writing-plans";
-}
+1. Deduplicate findings with same root cause.
+2. Verify supporting evidence when practical.
+3. Reject unsupported or speculative claims.
+4. Reject style-only findings.
+5. Reject complexity introduced by reviewer itself.
+6. Resolve factual disagreements using current codebase evidence.
+7. Keep only findings worth owner consideration.
+
+Reviewer findings are advisory.
+
+Reviewer count is not a vote.
+
+Agreement between independent reviewers increases confidence but does not replace evidence.
+
+### 5. Owner Decision Gate
+
+Do not modify spec yet.
+
+Present retained findings to owner.
+
+Group findings when they share one design decision.
+
+For each owner decision, use:
+
+```text
+[F1] <finding title>
+
+Problem:
+<concise explanation>
+
+Evidence:
+<concise spec/code evidence>
+
+Recommendation:
+<Option N> — <reason>
+
+Choices:
+- Discard — keep current spec unchanged
+- Option 1 — <smallest viable correction>
+- Option 2 — <meaningfully different viable correction>
+- Option 3 — <meaningfully different viable correction>
 ```
 
-## CTO verdict shape (required order)
+Rules:
 
-```markdown
-## CTO verdict
-**Decision:** APPROVE | CONDITIONAL GO | REJECT
-**Spec:** <path>
+- Always include `Discard`.
+- Provide only viable alternatives.
+- Up to 3 change options.
+- Do not invent weak options merely to reach 3.
+- Make recommendation explicit.
+- Keep owner decision surface concise.
+- Do not edit spec before owner responds.
 
-### Executive summary
-<2–4 sentences: strongest risk + why this decision>
+### 6. Apply Owner Decisions
 
-### Blockers (must resolve before writing-plans)
-- [B#] <finding> — source: BA|Architect|QA — <why>
+After owner provides decisions:
 
-### Should-fix (CONDITIONAL must be non-empty here)
-- [S#] ...
+- apply only explicitly approved changes
+- leave discarded findings unchanged
+- treat selected option as decision authority
+- make smallest spec edit that fully records decision
+- update dependent sections when required for consistency
+- remove text made obsolete by approved decision
+- do not introduce unrelated improvements
 
-### Nits
-- [N#] ...
+Preserve Superpowers design-spec contract:
 
-### Cross-persona conflicts
-- <conflict>: resolution = <choice + reason>  (or None)
+- keep existing spec file and location
+- preserve design-document role
+- preserve approved decisions unless owner supersedes them
+- preserve scope and out-of-scope boundaries unless owner changes them
+- keep requirements explicit
+- keep design internally consistent
+- leave no new `TODO`, `TBD`, placeholder, or unresolved ambiguity
+- do not add implementation task breakdowns
+- do not invoke or reproduce `writing-plans`
 
-### Persona roll-up
-- BA: <1-line> | Architect: <1-line> | QA: <1-line>
+### 7. Integrity Check
 
-### Next step
-REJECT → revise spec, re-run spec-review
-CONDITIONAL GO → partner waives/fixes Should-fix, then writing-plans
-APPROVE → partner ack, then writing-plans
+After editing spec, inspect changed sections and their direct dependents.
+
+Verify:
+
+- every change maps to an owner-approved decision
+- no discarded finding was applied
+- approved decisions are represented completely
+- no contradiction was introduced
+- terminology remains consistent
+- architecture remains coherent
+- scope did not expand accidentally
+- spec remains suitable input for `writing-plans`
+
+Do not launch another full review wave unless approved changes materially invalidate assumptions used by previous reviewers.
+
+## Completion
+
+If all owner decisions are resolved:
+
+```text
+READY_FOR_WRITING_PLANS
+
+Applied:
+- <approved decision>
+- <approved decision>
+
+Discarded:
+- <discarded finding>
 ```
 
-**Calibration:** Weight severity, not headcount. APPROVE only with zero blockers and no unresolved money/identity/migration conflicts. Prefer CONDITIONAL GO over fake "APPROVED WITH NITS."
+If owner decisions remain unresolved:
 
-## Rationalizations
+```text
+OWNER_DECISIONS_REQUIRED
 
-| Excuse | Reality |
-| --- | --- |
-| "Partner said skip" | Run gate; waive named items after findings. |
-| "Doc already addressed B1–Bn" | Tables are claims — verify against code. |
-| "3 agents overkill / one agent three hats" | Shared blind spots; parallel independents mandatory. |
-| "Inline BA/Architect/QA sections = multi-persona" | Writing three headings yourself is still one mind. Spawn. |
-| "Quick CTO skim" / "answer this turn" | Latency ≠ waiver. Architect+QA must investigate codebase. |
-| "I'm tired; one synthesis beats three thin reports" | Exhaustion favors shortcuts; gate still runs. |
-| "Read-only reviewers can't improve the spec" | Findings are the product; edits come after REJECT/CONDITIONAL. |
-| "Gaps belong in writing-plans" | Plans encode wrong assumptions. |
-| "Prior REJECT cycle = done" | Revised specs need delta re-check. |
-| "Narrow prompts / shorter reviews = collapse OK" | Narrow focus is fine; collapsing personas into one agent is not. |
-| "Partner waived the gate in advance" | Only named Should-fix after a recorded CONDITIONAL verdict. |
+Pending:
+- <finding ID>
+- <finding ID>
+```
 
-## Red Flags — discard shortcut, re-run gate
-
-Jumping to writing-plans · solo/four-hat review · mega-prompt or inline "persona sections" without subagents · markdown-only Architect/QA · verdict before three reports · APPROVE from blocker tables alone · empty findings + praise · "efficiency" / latency / exhaustion as reason to skip parallel spawn
-
-## Common Mistakes
-
-Reviewers editing the spec → read-only. CTO pasting all three reports → dedupe into B/S/N. Serial dispatch → parallel. Omitting related specs → pass links. Running reviewers then also writing-plans in the same turn → stop after verdict.
+Do not proceed to `writing-plans` from this skill.
