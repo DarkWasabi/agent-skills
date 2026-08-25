@@ -83,3 +83,5 @@ auth logic is high-effort review regardless of diff size.
 | Conflating effort with model tier | State both independently. A cheap model can carry "medium effort" on a fiddly-but-narrow task; a capable model can run "low effort" on a big transcription job to keep it terse. |
 | Vague thoroughness language ("be careful", "do a good job") | Use the three phrasings verbatim — vague language is negotiable, the recipe isn't. |
 | Same effort line copy-pasted across every task in the plan | Re-classify per task. A plan with one architectural task and four mechanical ones should read that way in the dispatches. |
+
+<!-- update-mechanism verification test, safe to ignore -->
