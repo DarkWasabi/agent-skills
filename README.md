@@ -12,7 +12,7 @@ A skill is a directory containing a `SKILL.md` with YAML frontmatter (`name`, `d
 |---|---|
 | [`clean-code-refactor`](clean-code-refactor/SKILL.md) | Restructuring existing code for readability/testability without changing behavior — "clean up", "refactor", "modernize". Not for new features or bug fixes. |
 | [`building-reactables`](building-reactables/SKILL.md) | Building or reviewing state management with the [Reactables](https://github.com/reactables) library (`@reactables/core`, `@reactables/react`, `@reactables/forms`) — reactables, async effects, debounce/cancellation, composing state. |
-| [`spec-review`](spec-review/SKILL.md) | Critical multi-persona review of a design spec (business analyst, system architect, senior QA + CTO synthesis) before planning or implementation. |
+| [`spec-review`](spec-review/SKILL.md) | Independent codebase-grounded review of a completed design spec for inconsistencies, hidden risks, and unnecessary complexity before implementation planning. |
 
 ## Installing
 
