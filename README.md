@@ -45,6 +45,31 @@ For a non-interactive global Claude Code install, add `-g -a claude-code -y`:
 npx skills add DarkWasabi/agent-skills --skill spec-review -g -a claude-code -y
 ```
 
+## Updating skills
+
+The `skills` CLI tracks each installed skill's source in a local lock file (`~/.agents/.skill-lock.json` for global installs, `skills-lock.json` for project installs) together with a GitHub tree hash of that skill's folder. `npx skills update` refetches the current tree hash from GitHub and compares it — no `version:` frontmatter field is read or needed for this.
+
+Author workflow: edit a skill, commit, push/merge to `main`. Nothing else to publish.
+
+User workflow:
+
+```bash
+# Update all installed skills (auto-detects global vs project scope)
+npx skills update
+
+# Update only global (~/.claude/skills) or only project skills
+npx skills update -g
+npx skills update -p
+
+# Update one named skill
+npx skills update sdd-effort
+
+# Skip the interactive scope prompt
+npx skills update -y
+```
+
+`npx skills update` reports skills as up to date, updated, or (for private/deleted repos or skills installed before path-tracking) unable to be checked automatically — those print the manual `npx skills add ... -y` command to refresh them.
+
 ## Manual install
 
 Copy or symlink a skill directory into your agent's skills path. For Claude Code, that is typically `~/.claude/skills/`.
