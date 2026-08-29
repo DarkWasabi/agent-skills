@@ -14,6 +14,7 @@ A skill is a directory containing a `SKILL.md` with YAML frontmatter (`name`, `d
 | [`building-reactables`](building-reactables/SKILL.md) | Building or reviewing state management with the [Reactables](https://github.com/reactables) library (`@reactables/core`, `@reactables/react`, `@reactables/forms`) — reactables, async effects, debounce/cancellation, composing state. |
 | [`sdd-effort`](sdd-effort/SKILL.md) | Dispatching implementer or reviewer subagents in subagent-driven-development (or any skill that fans out plan tasks to subagents) when tasks vary in how much exploration, judgment, or verification each deserves. |
 | [`spec-review`](spec-review/SKILL.md) | Independent codebase-grounded review of a completed design spec for inconsistencies, hidden risks, and unnecessary complexity before implementation planning. |
+| [`reviewing-and-fixing-a-branch`](reviewing-and-fixing-a-branch/SKILL.md) | A branch is written and needs independent correctness, simplification, and cleanup reviews, a consolidated ledger fixed in whole-ledger waves with independent wave review, whole-diff verification, and an owner decision on integration — "review this branch", "get this ready", "clean up and ship". Never commits/pushes/merges on its own. |
 
 ## Installing with npx
 
@@ -31,6 +32,7 @@ Install one skill:
 npx skills add DarkWasabi/agent-skills --skill clean-code-refactor
 npx skills add DarkWasabi/agent-skills --skill building-reactables
 npx skills add DarkWasabi/agent-skills --skill spec-review
+npx skills add DarkWasabi/agent-skills --skill reviewing-and-fixing-a-branch
 ```
 
 Install all skills:
